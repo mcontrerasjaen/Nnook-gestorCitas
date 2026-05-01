@@ -4,14 +4,26 @@ import DashboardLayout from './components/DashboardLayout';
 import Agenda from './components/Agenda';
 import AppointmentModal from './components/AppointmentModal';
 import Hero from './components/landing/Hero';
-import Features from './components/landing/Features'; 
+import Features from './components/landing/Features';
 import Footer from './components/Footer';
+import BusinessRegister from './components/BusinessRegister';
+import BusinessOnboardingForm from './components/BusinessOnboardingForm';
+import StepProgress from './components/StepProgress';
 
 function App() {
   const [showLanding, setShowLanding] = useState(true);
+  const [showRegister, setShowRegister] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [selectedType, setSelectedType] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [citasReales, setCitasReales] = useState([]);
+
+  const [businessInfo, setBusinessInfo] = useState({
+    name: '',
+    owner: '',
+    email: '',
+    sector: ''
+  });
 
   const cargarCitas = async () => {
     console.log("🔄 Actualizando agenda de Nnook...");
@@ -46,12 +58,37 @@ function App() {
 
   return (
     <div className="min-h-screen bg-aura-black text-white">
+      {(showRegister || showOnboarding || (!selectedType && !showLanding)) && (
+        <StepProgress currentStep={showRegister ? 1 : showOnboarding ? 2 : 3} />
+      )}
+
       {showLanding ? (
         <div className="flex flex-col">
-          <Hero onStart={() => setShowLanding(false)} />
+          <Hero onStart={() => {
+            setShowLanding(false);
+            setShowRegister(true);
+          }} />
           <Features />
-           <Footer />
+          <Footer />
         </div>
+      ) : showRegister ? (
+        <BusinessRegister
+          onBack={() => {
+            setShowRegister(false);
+            setShowLanding(true);
+          }}
+          onComplete={(data) => {
+            setBusinessInfo(data);
+            setShowRegister(false);
+            setShowOnboarding(true);
+          }}
+        />
+      ) : showOnboarding ? (
+        <BusinessOnboardingForm
+          onComplete={() => {
+            setShowOnboarding(false);
+          }}
+        />
       ) : !selectedType ? (
         <SegmentSelector onSelect={handleSelection} />
       ) : (
