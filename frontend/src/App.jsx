@@ -5,6 +5,7 @@ import Agenda from './components/Agenda';
 import AppointmentModal from './components/AppointmentModal';
 import Hero from './components/landing/Hero';
 import Features from './components/landing/Features'; 
+import Footer from './components/Footer';
 
 function App() {
   const [showLanding, setShowLanding] = useState(true);
@@ -49,6 +50,7 @@ function App() {
         <div className="flex flex-col">
           <Hero onStart={() => setShowLanding(false)} />
           <Features />
+           <Footer />
         </div>
       ) : !selectedType ? (
         <SegmentSelector onSelect={handleSelection} />
