@@ -22,10 +22,10 @@ export default function Footer() {
           <div>
             <h4 className="text-[#D4AF37] text-xs uppercase tracking-[0.3em] font-bold mb-8">Especialidades</h4>
             <ul className="space-y-4 text-gray-400 text-sm font-light">
-              <li className="hover:text-white transition-colors cursor-pointer text-xs uppercase tracking-widest">Barberías de Autor</li>
-              <li className="hover:text-white transition-colors cursor-pointer text-xs uppercase tracking-widest">Salones Lady Hair</li>
-              <li className="hover:text-white transition-colors cursor-pointer text-xs uppercase tracking-widest">Centros de Estética</li>
-              <li className="hover:text-white transition-colors cursor-pointer text-xs uppercase tracking-widest">Spa & Wellness</li>
+              <li className="hover:text-white transition-colors cursor-pointer text-xs uppercase tracking-widest">Belleza y bienestar</li>
+              <li className="hover:text-white transition-colors cursor-pointer text-xs uppercase tracking-widest">Deporte & Nutricion</li>
+              <li className="hover:text-white transition-colors cursor-pointer text-xs uppercase tracking-widest">Salud y Cuidado</li>
+              <li className="hover:text-white transition-colors cursor-pointer text-xs uppercase tracking-widest">Otros</li>
             </ul>
           </div>
 
