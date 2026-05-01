@@ -1,48 +1,94 @@
+import React from 'react';
+import { NavLink } from 'react-router-dom'; // Importante para las URLs
 import { Calendar, Users, Settings, Scissors, LayoutDashboard, LogOut } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const menuItems = [
-  { icon: <LayoutDashboard size={20} />, label: 'Resumen', id: 'overview' },
-  { icon: <Calendar size={20} />, label: 'Agenda', id: 'calendar' },
-  { icon: <Users size={20} />, label: 'Clientes', id: 'clients' },
-  { icon: <Scissors size={20} />, label: 'Servicios', id: 'services' },
-  { icon: <Settings size={20} />, label: 'Configuración', id: 'settings' },
-];
+export default function Sidebar({ theme, onLogout }) {
+  
+  const menuItems = [
+    { icon: <Calendar size={20} />, label: 'Agenda', id: 'calendar' },
+    { icon: <Users size={20} />, label: 'Equipo', id: 'staff' },
+    { icon: <Scissors size={20} />, label: 'Servicios', id: 'services' },
+    { icon: <LayoutDashboard size={20} />, label: 'Métricas', id: 'overview' },
+    { icon: <Settings size={20} />, label: 'Ajustes', id: 'settings' },
+  ];
 
-export default function Sidebar() {
+  const accentColor = theme?.color || '#D4AF37';
+
   return (
     <>
-
-      <nav className="fixed bottom-0 left-0 right-0 h-16 bg-[#1A1A1A] border-t border-[#D4AF37]/30 flex justify-around items-center z-50 md:hidden px-4">
+      {/* MOBILE NAV */}
+      <nav className="fixed bottom-0 left-0 right-0 h-16 bg-[#1A1A1A] border-t border-white/10 flex justify-around items-center z-50 md:hidden px-4">
         {menuItems.slice(0, 4).map((item) => (
-          <button key={item.id} className="text-[#D4AF37]/60 hover:text-[#D4AF37] flex flex-col items-center transition-colors">
+          <NavLink 
+            key={item.id} 
+            to={`/dashboard/${item.id}`}
+            className="flex flex-col items-center transition-colors"
+            style={({ isActive }) => ({
+              color: isActive ? accentColor : 'rgba(255,255,255,0.4)'
+            })}
+          >
             {item.icon}
-            <span className="text-[10px] uppercase mt-1 font-bold">{item.label}</span>
-          </button>
+            <span className="text-[8px] uppercase mt-1 font-bold tracking-widest">{item.label}</span>
+          </NavLink>
         ))}
       </nav>
 
-      <aside className="hidden md:flex w-64 h-screen bg-[#0F0F0F] border-r border-[#D4AF37]/20 flex-col p-6 sticky top-0">
+      {/* DESKTOP SIDEBAR */}
+      <aside className="hidden md:flex w-64 h-screen bg-[#0F0F0F] border-r border-white/5 flex-col p-6 sticky top-0">
         <div className="flex items-center gap-3 mb-12">
-          <div className="w-9 h-9 bg-[#D4AF37] rounded-lg flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(212,175,55,0.4)]">
+          <div 
+            className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 shadow-lg"
+            style={{ backgroundColor: accentColor, boxShadow: `0 0 15px ${accentColor}66` }}
+          >
             <span className="text-[#0F0F0F] font-black text-xl italic">N</span>
           </div>
-          <h1 className="text-[#D4AF37] font-serif text-3xl tracking-tighter truncate">Nnook</h1>
+          <h1 className="text-white font-serif text-3xl tracking-tighter truncate">Nnook</h1>
         </div>
 
         <nav className="flex-1 space-y-2">
           {menuItems.map((item) => (
-            <div
+            <NavLink
               key={item.id}
-              className="flex items-center gap-4 px-4 py-3 rounded-xl text-[#D4AF37]/70 hover:text-[#D4AF37] hover:bg-[#D4AF37]/10 cursor-pointer transition-all group"
+              to={`/dashboard/${item.id}`}
+              className={({ isActive }) => `
+                w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all group
+                ${isActive ? 'bg-white/5 text-white' : 'text-gray-500 hover:text-white hover:bg-white/[0.02]'}
+              `}
             >
-              <span className="group-hover:drop-shadow-[0_0_8px_rgba(212,175,55,0.6)]">
-                {item.icon}
-              </span>
-              <span className="font-bold text-sm uppercase tracking-widest">{item.label}</span>
-            </div>
+              {/* Usamos una función para detectar si está activo y pintar el icono */}
+              {({ isActive }) => (
+                <>
+                  <span 
+                    className="transition-all"
+                    style={{ color: isActive ? accentColor : '' }}
+                  >
+                    {item.icon}
+                  </span>
+                  <span className="font-bold text-[10px] uppercase tracking-[0.2em]">{item.label}</span>
+                  
+                  {isActive && (
+                    <motion.div 
+                      layoutId="activeIndicator"
+                      className="ml-auto w-1 h-4 rounded-full"
+                      style={{ backgroundColor: accentColor }}
+                    />
+                  )}
+                </>
+              )}
+            </NavLink>
           ))}
         </nav>
+
+        <div className="pt-4 border-t border-white/5">
+          <button 
+            onClick={onLogout}
+            className="w-full flex items-center gap-4 px-4 py-3 text-gray-600 hover:text-red-500 transition-colors group"
+          >
+            <LogOut size={20} className="group-hover:translate-x-1 transition-transform" />
+            <span className="font-bold text-[10px] uppercase tracking-widest">Cerrar Sesión</span>
+          </button>
+        </div>
       </aside>
     </>
   );

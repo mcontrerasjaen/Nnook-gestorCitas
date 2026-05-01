@@ -4,7 +4,7 @@ import { Landmark, FileText, MapPin, User, CreditCard, ArrowRight } from 'lucide
 
 export default function BusinessOnboardingForm({ onComplete }) {
   return (
-    <section className="min-h-screen bg-[#050505] flex items-center justify-center p-6 py-20">
+    <section className="min-h-screen bg-[#050505] flex items-center justify-center p-6 py-28">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

@@ -61,7 +61,7 @@ export default function BusinessRegister({ onBack, onComplete }) {
     };
 
     return (
-        <section className="min-h-screen flex items-center justify-center bg-[#050505] p-6 py-20 relative">
+        <section className="min-h-screen flex items-center justify-center bg-[#050505] p-6 py-28 relative">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#D4AF37] opacity-[0.03] blur-[120px] rounded-full pointer-events-none" />
 
             <motion.div
