@@ -22,8 +22,7 @@ export default function Features() {
   ];
 
   return (
-    <section id="info" className="py-24 bg-[#050505] relative overflow-hidden">
-      {/* Sutil resplandor de fondo */}
+    <section id="info" className="py-24 bg-[#050505] relative overflow-hidden">      
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[#D4AF37] opacity-[0.02] blur-[120px] rounded-full pointer-events-none" />
 
       <div className="container mx-auto px-6 relative z-10">

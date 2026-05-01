@@ -99,8 +99,7 @@ export default function Agenda({ citasReales, salonType, onSuccess }) {
                         top: `${(parseInt(cita.hora) - 9) * 96 + 10}px`,
                         height: `${(parseInt(cita.duracion) / 60) * 96 - 20}px`
                       }}
-                    >
-                      {/* CAPA DE DATOS: Se oculta al hacer hover */}
+                    >                      
                       <div className="flex flex-col h-full group-hover:opacity-0 transition-opacity duration-200">
                         <div className="flex justify-between items-center mb-1 shrink-0">
                           <p className="text-[10px] font-black text-[#D4AF37] uppercase tracking-widest">{cita.hora}</p>
@@ -124,8 +123,7 @@ export default function Agenda({ citasReales, salonType, onSuccess }) {
                           )}
                         </div>
                       </div>
-
-                      {/* CAPA ELIMINAR: Aparece solo al hacer hover en el centro */}
+                      
                       <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                         <Trash2 size={20} className="text-red-500 mb-1 drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]" />
                         <span className="text-[10px] font-black text-red-500 uppercase tracking-[0.3em]">Eliminar</span>
