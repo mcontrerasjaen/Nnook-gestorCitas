@@ -1,17 +1,45 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
     Building2, Mail, Lock, User, Scissors, Sparkles,
-    Crown, Wind, X, Camera, MessageCircle, Globe
+    Crown, Wind, X, Camera, MessageCircle, Globe, ChevronDown 
 } from 'lucide-react';
 
 export default function BusinessRegister({ onBack, onComplete }) {
-    const sectors = [
-        { id: 'barber', label: 'Barbería', icon: <Scissors size={16} /> },
-        { id: 'hair', label: 'Hair Studio', icon: <Crown size={16} /> },
-        { id: 'beauty', label: 'Salon Belleza', icon: <Sparkles size={16} /> },
-        { id: 'spa', label: 'Spa & Wellness', icon: <Wind size={16} /> }
-    ];
+    const [selectedCategory, setSelectedCategory] = useState('');
+
+    const sectors = {
+        belleza: {
+            label: 'Belleza & Bienestar',
+            icon: <Sparkles size={16} />,
+            subsectores: [
+                { id: 'barber', label: 'Barbería de Autor' },
+                { id: 'hair', label: 'Hair Studio' },
+                { id: 'beauty', label: 'Salón de Belleza' },
+                { id: 'nails', label: 'Salón de Uñas' },
+                { id: 'spa', label: 'Spa & Wellness' }
+            ]
+        },
+        deporte: {
+            label: 'Deporte & Salud',
+            icon: <Wind size={16} />,
+            subsectores: [
+                { id: 'gym', label: 'Entrenamiento Personal' },
+                { id: 'yoga', label: 'Estudio de Yoga/Pilates' },
+                { id: 'fisioterapia', label: 'Fisioterapia' },
+                { id: 'nutricion', label: 'Nutrición' }
+            ]
+        },
+        salud: {
+            label: 'Salud & Cuidado',
+            icon: <Scissors size={16} />, 
+            subsectores: [
+                { id: 'dental', label: 'Clínica Dental' },
+                { id: 'psicologia', label: 'Psicología' },
+                { id: 'estetica_medica', label: 'Medicina Estética' }
+            ]
+        }
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -19,7 +47,9 @@ export default function BusinessRegister({ onBack, onComplete }) {
         onComplete({
             name: formData.get('salonName'),
             owner: formData.get('ownerName'),
-            email: formData.get('email')
+            email: formData.get('email'),
+            category: selectedCategory,
+            sector: formData.get('sector')
         });
     };
 
@@ -109,26 +139,47 @@ export default function BusinessRegister({ onBack, onComplete }) {
 
                     {/* SECTOR */}
                     <div className="space-y-4">
-                        <label className="text-[10px] text-[#D4AF37] uppercase tracking-widest font-black ml-1 text-center block">Selecciona tu Sector</label>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            {sectors.map(sector => (
-                                <label key={sector.id} className="cursor-pointer group">                                   
-                                    <input
-                                        type="radio"
-                                        name="sector"
-                                        value={sector.id}
-                                        className="hidden peer"
-                                        required
-                                    />
-                                    <div className="flex flex-col items-center justify-center p-4 bg-black border border-white/5 rounded-2xl peer-checked:border-[#D4AF37] peer-checked:bg-[#D4AF37]/5 group-hover:bg-white/5 transition-all text-center">
-                                        <span className="text-[#D4AF37] mb-2">{sector.icon}</span>
-                                        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">{sector.label}</span>
-                                    </div>
-                                </label>
-                            ))}
+                        <label className="text-[10px] text-[#D4AF37] uppercase tracking-widest font-black ml-1 text-center block">
+                            Sector y Especialización
+                        </label>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Selector de Categoría Principal */}
+                            <div className="relative">
+                                <select
+                                    name="mainCategory"
+                                    value={selectedCategory}
+                                    onChange={(e) => setSelectedCategory(e.target.value)}
+                                    required
+                                    className="w-full bg-black border border-white/5 rounded-2xl py-4 px-6 outline-none focus:border-[#D4AF37]/40 text-sm text-white appearance-none cursor-pointer transition-all"
+                                >
+                                    <option value="">Categoría principal...</option>
+                                    {Object.keys(sectors).map(key => (
+                                        <option key={key} value={key}>{sectors[key].label}</option>
+                                    ))}
+                                </select>
+                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" size={16} />
+                            </div>
+
+                            {/* Dropdown de Subsector Dinámico */}
+                            <div className="relative">
+                                <select
+                                    name="sector"
+                                    disabled={!selectedCategory}
+                                    required
+                                    className={`w-full bg-black border rounded-2xl py-4 px-6 outline-none text-sm appearance-none cursor-pointer transition-all ${selectedCategory ? 'border-[#D4AF37]/40 text-[#D4AF37]' : 'border-white/5 text-gray-600'
+                                        }`}
+                                >
+                                    <option value="">Especialidad...</option>
+                                    {selectedCategory && sectors[selectedCategory].subsectores.map(sub => (
+                                        <option key={sub.id} value={sub.id}>{sub.label}</option>
+                                    ))}
+                                </select>
+                                <ChevronDown className={`absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none ${selectedCategory ? 'text-[#D4AF37]' : 'text-gray-600'
+                                    }`} size={16} />
+                            </div>
                         </div>
                     </div>
-
                     <button type="submit" className="w-full bg-[#D4AF37] text-[#050505] font-black py-5 rounded-2xl mt-4 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_10px_30px_rgba(212,175,55,0.2)] uppercase tracking-widest text-xs">
                         Finalizar y Crear Espacio
                     </button>
