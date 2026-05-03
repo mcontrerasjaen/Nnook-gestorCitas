@@ -10,14 +10,11 @@ const HORAS = [
 ];
 
 export default function Agenda({ empleados, citasReales, theme, onSuccess, salonType }) {
-  // 1. Mantenemos el activeTab solo para la vista de móvil
+  console.log("🔍 Agenda renderizando con:", empleados.length, "empleados");
   const [activeTab, setActiveTab] = useState(null);
 
-  // 2. Variable de seguridad: Si no hay pestaña activa, usamos el primer empleado disponible
-  // Esto evita que la agenda "desaparezca" si activeTab es null
   const currentTabId = activeTab || (empleados.length > 0 ? empleados[0].id : null);
 
-  // 3. Este efecto solo sirve para "limpiar" la selección si el empleado ya no existe
   useEffect(() => {
     if (empleados.length > 0 && activeTab === null) {
       setActiveTab(empleados[0].id);
@@ -44,21 +41,19 @@ export default function Agenda({ empleados, citasReales, theme, onSuccess, salon
     );
   }
 
- return (
+  return (
     <div className="flex flex-col h-full bg-[#0F0F0F] rounded-[2.5rem] border border-white/5 overflow-hidden">
-      
-      {/* Selector para móvil (Solo se ve en pantallas pequeñas) */}
+      {/* Selector para móvil */}
       {empleados.length > 1 && (
         <div className="flex md:hidden border-b border-white/5 p-4 gap-3 overflow-x-auto bg-black/40">
           {empleados.map(emp => (
             <button
               key={emp.id}
               onClick={() => setActiveTab(emp.id)}
-              className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                (activeTab === emp.id || (!activeTab && empleados[0].id === emp.id)) 
-                ? 'bg-[#D4AF37] text-black shadow-[0_0_15px_rgba(212,175,55,0.3)]' 
+              className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${(activeTab === emp.id || (!activeTab && empleados[0].id === emp.id))
+                ? 'bg-[#D4AF37] text-black shadow-[0_0_15px_rgba(212,175,55,0.3)]'
                 : 'bg-white/5 text-gray-500'
-              }`}
+                }`}
             >
               {emp.nombre}
             </button>
@@ -79,65 +74,63 @@ export default function Agenda({ empleados, citasReales, theme, onSuccess, salon
           ))}
         </div>
 
-        {/* CONTENEDOR DE COLUMNAS: Forzamos visualización */}
-        <div 
-          className="flex-1 grid divide-x divide-white/5" 
-          style={{ 
+        {/* CONTENEDOR DE COLUMNAS */}
+        <div
+          className="flex-1 grid divide-x divide-white/5"
+          style={{
             gridTemplateColumns: `repeat(${empleados.length}, minmax(280px, 1fr))`,
-            minWidth: '100%' 
+            minWidth: '100%'
           }}
         >
-          {empleados.map((emp, index) => (
+          {empleados.map((emp) => (
             <div
               key={emp.id}
-              // LA CLAVE: En escritorio (md) siempre es 'block'. En móvil, si no hay activeTab, mostramos el primero.
-              className={`relative bg-[#0F0F0F] min-h-full ${
-                (activeTab === emp.id || (!activeTab && index === 0)) ? 'block' : 'hidden md:block'
-              }`}
+             
+              className={`relative bg-[#0F0F0F] min-h-full ${currentTabId === emp.id ? 'block' : 'hidden md:block'
+                }`}
             >
               {/* Cabecera del Empleado */}
               <div className="sticky top-0 bg-[#0F0F0F]/95 backdrop-blur-md p-5 text-center border-b border-white/5 z-20">
-                <div 
-                  className="w-2 h-2 rounded-full mx-auto mb-2 shadow-[0_0_10px]" 
-                  style={{ backgroundColor: emp.color, boxShadow: `0 0 10px ${emp.color}` }} 
+                <div
+                  className="w-2 h-2 rounded-full mx-auto mb-2 shadow-[0_0_10px]"
+                  style={{ backgroundColor: emp.color, boxShadow: `0 0 10px ${emp.color}` }}
                 />
-                <span className="text-[11px] font-black text-white uppercase tracking-[0.3em] block truncate">
-                  {emp.nombre}
-                </span>
+                <span className="text-[11px] font-black text-white uppercase tracking-[0.3em] block truncate">{emp.nombre}</span>
                 <span className="text-[8px] text-gray-500 uppercase font-bold tracking-widest">{emp.especialidad}</span>
               </div>
 
-              {/* Rejilla de Horas */}
+              {/* Rejilla de Horas y Citas Integradas */}
               <div className="relative">
-                {HORAS.map((h) => (
-                  <div key={h} className="h-24 border-b border-white/[0.02] hover:bg-white/[0.01] transition-colors" />
-                ))}
+                {HORAS.map((horaFila) => (
+                  <div key={horaFila} className="h-24 border-b border-white/[0.02] hover:bg-white/[0.01] transition-colors relative">
 
-                {/* Pintar citas */}
-                {citasReales && citasReales
-                  .filter(cita => Number(cita.empleado_id) === emp.id)
-                  .map((cita) => (
-                    <motion.div
-                      key={cita.id}
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="absolute left-3 right-3 p-4 rounded-2xl bg-[#1A1A1A] border-l-[6px] shadow-2xl z-10 group"
-                      style={{
-                        borderColor: emp.color,
-                        top: `${HORAS.indexOf(cita.hora_inicio.substring(0, 5)) * 96 + 8}px`,
-                        height: '80px'
-                      }}
-                    >
-                      <div className="flex justify-between items-start mb-1">
-                         <span className="text-[9px] font-black text-gray-500 uppercase">{cita.hora_inicio.substring(0, 5)}</span>
-                         <button onClick={() => handleEliminar(cita.id)} className="opacity-0 group-hover:opacity-100 text-red-500 transition-opacity">
-                            <Trash2 size={12} />
-                         </button>
-                      </div>
-                      <p className="text-xs font-black text-white uppercase truncate">{cita.cliente_nombre}</p>
-                    </motion.div>
-                  ))
-                }
+                    {/* Pintar citas que coincidan con ESTA hora y ESTE empleado */}
+                    {citasReales && citasReales
+                      .filter(cita => {
+                        const horaCita = cita.hora_inicio ? cita.hora_inicio.substring(0, 5) : "";
+                        const esMismoEmpleado = String(cita.empleado_id) === String(emp.id);
+                        return esMismoEmpleado && horaCita === horaFila;
+                      })
+                      .map((cita) => (
+                        <motion.div
+                          key={cita.id}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="absolute inset-x-2 p-4 rounded-2xl bg-[#1A1A1A] border-l-[6px] shadow-2xl z-10 group"
+                          style={{ borderColor: emp.color, top: '8px', height: '80px' }}
+                        >
+                          <div className="flex justify-between items-start mb-1">
+                            <span className="text-[9px] font-black text-gray-500 uppercase">{cita.hora_inicio.substring(0, 5)}</span>
+                            <button onClick={() => handleEliminar(cita.id)} className="opacity-0 group-hover:opacity-100 text-red-500 transition-opacity">
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
+                          <p className="text-xs font-black text-white uppercase truncate">{cita.cliente_nombre || cita.cliente}</p>
+                        </motion.div>
+                      ))
+                    }
+                  </div>
+                ))}
               </div>
             </div>
           ))}

@@ -2,51 +2,56 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Clock, User, Scissors, UserRound, ChevronDown } from 'lucide-react';
 
-export default function AppointmentModal({ onClose, onSuccess, salonType }) {
+export default function AppointmentModal({ onClose, onSuccess, salonType, empleados, currentBusinessId }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const formData = new FormData(e.target);
     const appointmentData = {
-      cliente: formData.get('cliente'),
-      hora: formData.get('hora'),
-      duracion: formData.get('duracion'),
-      servicio: formData.get('servicio'),
-      empleadoId: formData.get('empleadoId'),
-       salonType: salonType,
+      cliente_nombre: formData.get('cliente'),
+      hora_inicio: formData.get('hora'),
+      duracion: parseInt(formData.get('duracion') || 30),
+      servicio_nombre: formData.get('servicio'),
+      empleado_id: parseInt(formData.get('empleadoId')), // Convertimos a número para Postgres
+      empresa_id: parseInt(currentBusinessId),           // Convertimos a número para Postgres
+      fecha: new Date().toISOString().split('T')[0]
     };
 
     console.log("Enviando cita...", appointmentData);
 
     try {
-      const response = await fetch('https://humble-spoon-q75qxq4xj94gc647r-3001.app.github.dev/api/appointments', {
+      // CAMBIO CLAVE: Puerto 5000 (Backend) en lugar de 3001
+      const response = await fetch('https://humble-spoon-q75qxq4xj94gc647r-5000.app.github.dev/api/appointments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(appointmentData)
       });
 
-      if (response.ok) {    
-        if (onSuccess) await onSuccess();    
+      if (response.ok) {
+        if (onSuccess) await onSuccess();
         onClose();
-        alert("¡Cita reservada con éxito!");
+        // Quitamos el alert para que la experiencia sea más fluida y profesional
+        console.log("¡Cita reservada con éxito!");
+      } else {
+        const errorServer = await response.json();
+        console.error("Error del servidor:", errorServer);
       }
-      
+
     } catch (error) {
       console.error("Error al guardar:", error);
-      alert("No se pudo conectar con el servidor, pero el diseño es increíble.");
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">     
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
         className="absolute inset-0 bg-black/80 backdrop-blur-md"
-      />      
+      />
       <motion.div
         initial={{ scale: 0.9, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -60,7 +65,7 @@ export default function AppointmentModal({ onClose, onSuccess, salonType }) {
         <h2 className="text-3xl font-serif text-aura-gold mb-1">Nueva Cita</h2>
         <p className="text-gray-500 text-sm mb-8 uppercase tracking-widest">Reserva de exclusividad</p>
 
-        <form onSubmit={handleSubmit} className="space-y-6">          
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <label className="text-[10px] text-[#D4AF37] uppercase tracking-[0.2em] ml-1">Nombre del Cliente</label>
             <div className="relative">
@@ -68,7 +73,7 @@ export default function AppointmentModal({ onClose, onSuccess, salonType }) {
               <input name="cliente" required type="text" className="w-full bg-[#0F0F0F] border border-white/5 rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-[#D4AF37]/50 transition-all text-sm text-white" placeholder="Ej. Julián García" />
             </div>
           </div>
-         
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-[10px] text-[#D4AF37] uppercase tracking-[0.2em] ml-1">Hora</label>
@@ -86,7 +91,7 @@ export default function AppointmentModal({ onClose, onSuccess, salonType }) {
               </select>
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <label className="text-[10px] text-[#D4AF37] uppercase tracking-[0.2em] ml-1">Servicio</label>
             <div className="relative">
@@ -94,7 +99,7 @@ export default function AppointmentModal({ onClose, onSuccess, salonType }) {
               <input name="servicio" required type="text" className="w-full bg-[#0F0F0F] border border-white/5 rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-[#D4AF37]/50 transition-all text-sm text-white" placeholder="Ej. Corte Skin Fade" />
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <label className="text-[10px] text-[#D4AF37] uppercase tracking-[0.2em] ml-1">Elegir Profesional</label>
             <div className="relative">
@@ -102,12 +107,19 @@ export default function AppointmentModal({ onClose, onSuccess, salonType }) {
               <select
                 name="empleadoId"
                 required
+                defaultValue=""
                 className="w-full bg-[#0F0F0F] border border-white/5 rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-[#D4AF37]/50 transition-all text-sm appearance-none cursor-pointer text-white"
               >
-                <option value="1">Alex (Barber)</option>
-                <option value="2">Dani (Color)</option>
-                <option value="3">Carla (Estética)</option>
+                <option value="" disabled>Selecciona un especialista...</option>
+
+                {/* MAPEO DINÁMICO: Solo aparecerán los que el dueño haya creado */}
+                {empleados.map(emp => (
+                  <option key={emp.id} value={emp.id}>
+                    {emp.nombre} ({emp.especialidad})
+                  </option>
+                ))}
               </select>
+
               <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#D4AF37]/50">
                 <ChevronDown size={16} />
               </div>

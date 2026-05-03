@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 export default function Sidebar({ theme, onLogout }) {
 
   const menuItems = [
-    { icon: <Calendar size={20} />, label: 'Agenda', id: 'calendar' },
+    { icon: <Calendar size={20} />, label: 'Agenda', id: 'agenda' },
     { icon: <Users size={20} />, label: 'Equipo', id: 'staff' },
     { icon: <Scissors size={20} />, label: 'Servicios', id: 'services' },
     { icon: <LayoutDashboard size={20} />, label: 'Métricas', id: 'overview' },

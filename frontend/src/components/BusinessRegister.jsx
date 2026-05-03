@@ -60,6 +60,19 @@ export default function BusinessRegister({ onBack, onComplete }) {
         });
     };
 
+    const handleSocialLogin = (provider) => {
+        console.log(`Iniciando registro con ${provider}...`);
+
+        if (provider === 'google') {
+            // window.location.href = 'URL_DE_TU_AUTH_GOOGLE';
+            alert("Conectando con Google Cloud Console...");
+        } else if (provider === 'instagram') {
+            alert("Conectando con Meta API (Instagram)...");
+        } else {
+            alert("Conectando con Facebook Developers...");
+        }
+    };
+
     return (
         <section className="min-h-screen flex items-center justify-center bg-[#050505] p-6 py-28 relative">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#D4AF37] opacity-[0.03] blur-[120px] rounded-full pointer-events-none" />
@@ -81,27 +94,52 @@ export default function BusinessRegister({ onBack, onComplete }) {
                 {/* --- NUEVA SECCIÓN: SOCIAL LOGIN --- */}
                 <div className="mb-10">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-                        <button type="button" className="flex items-center justify-center gap-3 bg-black border border-white/5 py-4 rounded-2xl hover:border-[#D4AF37]/50 hover:bg-[#D4AF37]/5 transition-all group">
-                            <Globe size={16} className="text-gray-600 group-hover:text-[#D4AF37] transition-all" />
+                        {/* GOOGLE */}
+                        <motion.button
+                            onClick={() => handleSocialLogin('google')}
+                            whileHover={{ y: -4, scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            type="button"
+                            className="flex items-center justify-center gap-3 bg-black border border-white/5 py-4 rounded-2xl hover:border-[#D4AF37]/50 hover:bg-[#D4AF37]/5 transition-all group shadow-sm hover:shadow-[#D4AF37]/10"
+                        >
+                            <Globe size={16} className="text-gray-600 group-hover:text-[#D4AF37] group-hover:rotate-12 transition-all duration-300" />
                             <span className="text-[9px] uppercase tracking-widest font-black text-gray-500 group-hover:text-white">Google</span>
-                        </button>
+                        </motion.button>
 
-                        <button type="button" className="flex items-center justify-center gap-3 bg-black border border-white/5 py-4 rounded-2xl hover:border-[#D4AF37]/50 hover:bg-[#D4AF37]/5 transition-all group">
-                            <Camera size={16} className="text-gray-600 group-hover:text-[#D4AF37] transition-all" />
+                        {/* INSTAGRAM */}
+                        <motion.button
+                            onClick={() => handleSocialLogin('instagram')}
+                            whileHover={{ y: -4, scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            type="button"
+                            className="flex items-center justify-center gap-3 bg-black border border-white/5 py-4 rounded-2xl hover:border-[#D4AF37]/50 hover:bg-[#D4AF37]/5 transition-all group shadow-sm hover:shadow-[#D4AF37]/10"
+                        >
+                            <Camera size={16} className="text-gray-600 group-hover:text-[#D4AF37] group-hover:rotate-[-10deg] transition-all duration-300" />
                             <span className="text-[9px] uppercase tracking-widest font-black text-gray-500 group-hover:text-white">Instagram</span>
-                        </button>
+                        </motion.button>
 
-                        <button type="button" className="flex items-center justify-center gap-3 bg-black border border-white/5 py-4 rounded-2xl hover:border-[#D4AF37]/50 hover:bg-[#D4AF37]/5 transition-all group">
-                            <MessageCircle size={16} className="text-gray-600 group-hover:text-[#D4AF37] transition-all" />
+                        {/* FACEBOOK */}
+                        <motion.button
+                            onClick={() => handleSocialLogin('facebook')}
+                            whileHover={{ y: -4, scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            type="button"
+                            className="flex items-center justify-center gap-3 bg-black border border-white/5 py-4 rounded-2xl hover:border-[#D4AF37]/50 hover:bg-[#D4AF37]/5 transition-all group shadow-sm hover:shadow-[#D4AF37]/10"
+                        >
+                            <MessageCircle size={16} className="text-gray-600 group-hover:text-[#D4AF37] group-hover:scale-110 transition-all duration-300" />
                             <span className="text-[9px] uppercase tracking-widest font-black text-gray-500 group-hover:text-white">Facebook</span>
-                        </button>
+                        </motion.button>
                     </div>
 
                     <div className="relative flex items-center justify-center">
                         <div className="absolute w-full h-[1px] bg-white/5"></div>
-                        <span className="relative bg-[#0A0A0A] px-6 text-[8px] uppercase tracking-[0.4em] text-gray-600 font-black">
+                        <motion.span
+                            initial={{ opacity: 0.5 }}
+                            whileHover={{ opacity: 1, letterSpacing: '0.5em' }}
+                            className="relative bg-[#0A0A0A] px-6 text-[8px] uppercase tracking-[0.4em] text-gray-600 font-black cursor-default transition-all duration-500"
+                        >
                             O registro manual
-                        </span>
+                        </motion.span>
                     </div>
                 </div>
                 {/* --- FIN SOCIAL LOGIN --- */}
@@ -178,56 +216,56 @@ export default function BusinessRegister({ onBack, onComplete }) {
                         {(formData.confirmPassword && formData.password !== formData.confirmPassword) && (
                             <p className="text-[9px] text-red-500 uppercase tracking-widest text-center font-black animate-pulse">Las contraseñas no coinciden</p>
                         )}
-                    </div>                
-                
-                {/* SECTOR */}
-                <div className="space-y-4">
-                    <label className="text-[10px] text-[#D4AF37] uppercase tracking-widest font-black ml-1 text-center block">
-                        Sector y Especialización
-                    </label>
+                    </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Selector de Categoría Principal */}
-                        <div className="relative">
-                            <select
-                                name="mainCategory"
-                                value={selectedCategory}
-                                onChange={(e) => setSelectedCategory(e.target.value)}
-                                required
-                                className="w-full bg-black border border-white/5 rounded-2xl py-4 px-6 outline-none focus:border-[#D4AF37]/40 text-sm text-white appearance-none cursor-pointer transition-all"
-                            >
-                                <option value="">Categoría principal...</option>
-                                {Object.keys(sectors).map(key => (
-                                    <option key={key} value={key}>{sectors[key].label}</option>
-                                ))}
-                            </select>
-                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" size={16} />
-                        </div>
+                    {/* SECTOR */}
+                    <div className="space-y-4">
+                        <label className="text-[10px] text-[#D4AF37] uppercase tracking-widest font-black ml-1 text-center block">
+                            Sector y Especialización
+                        </label>
 
-                        {/* Dropdown de Subsector Dinámico */}
-                        <div className="relative">
-                            <select
-                                name="sector"
-                                disabled={!selectedCategory}
-                                required
-                                className={`w-full bg-black border rounded-2xl py-4 px-6 outline-none text-sm appearance-none cursor-pointer transition-all ${selectedCategory ? 'border-[#D4AF37]/40 text-[#D4AF37]' : 'border-white/5 text-gray-600'
-                                    }`}
-                            >
-                                <option value="">Especialidad...</option>
-                                {selectedCategory && sectors[selectedCategory].subsectores.map(sub => (
-                                    <option key={sub.id} value={sub.id}>{sub.label}</option>
-                                ))}
-                            </select>
-                            <ChevronDown className={`absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none ${selectedCategory ? 'text-[#D4AF37]' : 'text-gray-600'
-                                }`} size={16} />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Selector de Categoría Principal */}
+                            <div className="relative">
+                                <select
+                                    name="mainCategory"
+                                    value={selectedCategory}
+                                    onChange={(e) => setSelectedCategory(e.target.value)}
+                                    required
+                                    className="w-full bg-black border border-white/5 rounded-2xl py-4 px-6 outline-none focus:border-[#D4AF37]/40 text-sm text-white appearance-none cursor-pointer transition-all"
+                                >
+                                    <option value="">Categoría principal...</option>
+                                    {Object.keys(sectors).map(key => (
+                                        <option key={key} value={key}>{sectors[key].label}</option>
+                                    ))}
+                                </select>
+                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" size={16} />
+                            </div>
+
+                            {/* Dropdown de Subsector Dinámico */}
+                            <div className="relative">
+                                <select
+                                    name="sector"
+                                    disabled={!selectedCategory}
+                                    required
+                                    className={`w-full bg-black border rounded-2xl py-4 px-6 outline-none text-sm appearance-none cursor-pointer transition-all ${selectedCategory ? 'border-[#D4AF37]/40 text-[#D4AF37]' : 'border-white/5 text-gray-600'
+                                        }`}
+                                >
+                                    <option value="">Especialidad...</option>
+                                    {selectedCategory && sectors[selectedCategory].subsectores.map(sub => (
+                                        <option key={sub.id} value={sub.id}>{sub.label}</option>
+                                    ))}
+                                </select>
+                                <ChevronDown className={`absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none ${selectedCategory ? 'text-[#D4AF37]' : 'text-gray-600'
+                                    }`} size={16} />
+                            </div>
                         </div>
                     </div>
-                </div>
-                <button type="submit" className="w-full bg-[#D4AF37] text-[#050505] font-black py-5 rounded-2xl mt-4 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_10px_30px_rgba(212,175,55,0.2)] uppercase tracking-widest text-xs">
-                    Finalizar y Crear Espacio
-                </button>
-            </form>
-        </motion.div>
+                    <button type="submit" className="w-full bg-[#D4AF37] text-[#050505] font-black py-5 rounded-2xl mt-4 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_10px_30px_rgba(212,175,55,0.2)] uppercase tracking-widest text-xs">
+                        Finalizar y Crear Espacio
+                    </button>
+                </form>
+            </motion.div>
         </section >
     );
 }

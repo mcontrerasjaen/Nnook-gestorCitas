@@ -84,19 +84,53 @@ def manage_staff():
     conn.close()
     return jsonify(lista)
 
-@app.route('/api/appointments', methods=['GET'])
-def get_appointments():
-    empresa_id = request.args.get('empresa_id', 1)
+@app.route('/api/appointments', methods=['GET', 'POST'])
+def manage_appointments():
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    if request.method == 'POST':
+        data = request.json
+        try:
+            cur.execute("""
+                INSERT INTO citas (empresa_id, empleado_id, cliente_nombre, fecha, hora_inicio)
+                VALUES (%s, %s, %s, %s, %s) RETURNING *;
+            """, (data['empresa_id'], data['empleado_id'], data['cliente_nombre'], data['fecha'], data['hora_inicio']))
+            
+            nueva_cita = cur.fetchone()
+            conn.commit()
+            
+            # --- FORMATEO ANTES DE ENVIAR ---
+            if nueva_cita:
+                nueva_cita['fecha'] = nueva_cita['fecha'].isoformat() if hasattr(nueva_cita['fecha'], 'isoformat') else str(nueva_cita['fecha'])
+                nueva_cita['hora_inicio'] = nueva_cita['hora_inicio'].strftime('%H:%M') if hasattr(nueva_cita['hora_inicio'], 'strftime') else str(nueva_cita['hora_inicio'])
+            
+            return jsonify(nueva_cita), 201
+        except Exception as e:
+            print(f"Error al guardar cita: {e}")
+            return jsonify({"error": str(e)}), 500
+        finally:
+            cur.close()
+            conn.close()
+
+    # --- LÓGICA GET ---
+    empresa_id = request.args.get('empresa_id')
     try:
-        conn = get_db_connection()
-        cur = conn.cursor()
-        cur.execute("SELECT * FROM citas WHERE empresa_id = %s", (empresa_id,))
+        cur.execute("SELECT * FROM citas WHERE empresa_id = %s ORDER BY hora_inicio ASC", (empresa_id,))
         citas = cur.fetchall()
+        
+        # Formateamos todas las citas de la lista
+        for cita in citas:
+            cita['fecha'] = str(cita['fecha'])
+            cita['hora_inicio'] = cita['hora_inicio'].strftime('%H:%M') if hasattr(cita['hora_inicio'], 'strftime') else str(cita['hora_inicio'])
+            
+        return jsonify(citas)
+    except Exception as e:
+        print(f"Error al obtener citas: {e}")
+        return jsonify([])
+    finally:
         cur.close()
         conn.close()
-        return jsonify(citas)
-    except:
-        return jsonify([]) 
     
 @app.route('/api/services', methods=['GET', 'POST'])
 def manage_services():    

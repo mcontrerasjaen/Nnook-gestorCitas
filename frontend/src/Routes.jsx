@@ -28,6 +28,7 @@ export default function AppRoutes({
   UI_CONFIG,
   currentBusinessId
 }) {
+  
   return (
     <Routes>
       <Route path="/" element={

@@ -20,10 +20,16 @@ function App() {
   const [currentBusinessId, setCurrentBusinessId] = useState(null);
 
   const cargarCitas = async () => {
+
+    if (!currentBusinessId) return;
+
     try {
-      const res = await fetch(`${API_URL}/api/appointments`);
+      const res = await fetch(`${API_URL}/api/appointments?empresa_id=${currentBusinessId}`);
       const data = await res.json();
-      setCitasReales(data);
+
+      setCitasReales([...data]);
+
+      console.log("📅 Citas sincronizadas para la empresa:", currentBusinessId);
     } catch (error) {
       console.error("Error al obtener citas:", error);
     }
@@ -114,30 +120,29 @@ function App() {
     }
   };
   useEffect(() => {
-    const sincronizarDashboard = async () => {
+    const cargarTodo = async () => {
       if (!currentBusinessId) return;
 
       try {
-        console.log("🔄 Sincronizando datos de Nnook...");
-
+        console.log("🔄 Sincronizando Nnook...");
         const [resStaff, resCitas] = await Promise.all([
           fetch(`${API_URL}/api/staff?empresa_id=${currentBusinessId}`),
           fetch(`${API_URL}/api/appointments?empresa_id=${currentBusinessId}`)
         ]);
 
-        const staffData = await resStaff.json();
-        const citasData = await resCitas.json();
+        const staff = await resStaff.json();
+        const citas = await resCitas.json();
 
-        setEmpleados(Array.isArray(staffData) ? staffData : []);
-        setCitasReales(Array.isArray(citasData) ? citasData : []);
-
-      } catch (error) {
-        console.error("❌ Error de sincronización:", error);
+        setEmpleados(Array.isArray(staff) ? staff : []);
+        setCitasReales(Array.isArray(citas) ? citas : []);
+      } catch (e) {
+        console.error("Error sincronizando:", e);
       }
     };
 
-    sincronizarDashboard();
-  }, [currentBusinessId, selectedType]);
+    cargarTodo();
+    
+  }, [currentBusinessId])
 
   const actions = {
     startRegister: () => {
@@ -250,6 +255,7 @@ function App() {
             onSuccess={cargarCitas}
             salonType={selectedType}
             empleados={empleados}
+            currentBusinessId={currentBusinessId}
           />
         )}
       </div>
