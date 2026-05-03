@@ -12,8 +12,7 @@ export default function DashboardLayout({
 }) {
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-[#0F0F0F] text-white">
-     
-      {/* Pasamos el control de navegación y el tema al Sidebar */}
+          
       <Sidebar 
         activeSection={activeSection} 
         setActiveSection={setActiveSection} 
@@ -27,12 +26,12 @@ export default function DashboardLayout({
           <div className="flex flex-col">          
             <span 
               className="text-[10px] md:text-xs uppercase tracking-[0.3em] font-bold"
-              style={{ color: theme.color }} // Color dinámico según sector
+              style={{ color: theme.color }} 
             >
               {theme.label} System
             </span>
             <h2 className="text-lg md:text-xl font-serif font-semibold capitalize truncate max-w-[200px] md:max-w-none tracking-tight">
-              {businessName || salonType} {/* Nombre real de la empresa */}
+              {businessName || salonType} 
             </h2>
           </div>          
                    

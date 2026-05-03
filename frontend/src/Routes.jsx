@@ -13,6 +13,7 @@ import Agenda from './components/Agenda';
 import StaffManagement from './components/StaffManagement';
 import ServiceManagement from './components/ServiceManagement';
 import Login from './components/Login';
+import Settings from './components/Settings';
 
 export default function AppRoutes({
   showLanding,
@@ -28,7 +29,7 @@ export default function AppRoutes({
   currentBusinessId
 }) {
   return (
-    <Routes>     
+    <Routes>
       <Route path="/" element={
         selectedType ? (
           <Navigate to="/dashboard/agenda" replace />
@@ -48,7 +49,7 @@ export default function AppRoutes({
           <SegmentSelector onSelect={actions.handleSelection} />
         )
       } />
-     
+
       <Route path="/dashboard/*" element={
         selectedType ? (
           <DashboardLayout
@@ -58,7 +59,7 @@ export default function AppRoutes({
             onOpenModal={actions.openModal}
             onLogout={actions.logout}
           >
-            <Routes>              
+            <Routes>
               <Route index element={
                 <Agenda
                   empleados={empleados}
@@ -91,8 +92,15 @@ export default function AppRoutes({
                   salonType={selectedType}
                   currentBusinessId={currentBusinessId}
                 />
-              } />            
-            
+              } />
+              <Route path="settings" element={
+                <Settings
+                  businessInfo={businessInfo}
+                  onDeleteBusiness={actions.deleteBusiness}
+                  currentBusinessId={currentBusinessId}
+                />
+              } />
+
             </Routes>
           </DashboardLayout>
         ) : <Navigate to="/" replace />

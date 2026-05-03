@@ -93,51 +93,51 @@ function App() {
     }
   };
 
- const handleAddStaff = async (newStaff) => {
+  const handleAddStaff = async (newStaff) => {
     try {
-        const response = await fetch(`${API_URL}/api/staff`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                ...newStaff,
-                empresa_id: currentBusinessId
-            })
-        });
+      const response = await fetch(`${API_URL}/api/staff`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...newStaff,
+          empresa_id: currentBusinessId
+        })
+      });
 
-        if (response.ok) {
-            const savedStaff = await response.json()        
-            setEmpleados(prev => [...prev, savedStaff]); 
-            console.log("✅ Empleado guardado en la base de datos:", savedStaff.nombre);
-        }
+      if (response.ok) {
+        const savedStaff = await response.json()
+        setEmpleados(prev => [...prev, savedStaff]);
+        console.log("✅ Empleado guardado en la base de datos:", savedStaff.nombre);
+      }
     } catch (error) {
-        console.error("❌ Error al guardar empleado:", error);
-    }
-};
-  useEffect(() => {
-  const sincronizarDashboard = async () => {    
-    if (!currentBusinessId) return;
-
-    try {
-      console.log("🔄 Sincronizando datos de Nnook...");
-            
-      const [resStaff, resCitas] = await Promise.all([
-        fetch(`${API_URL}/api/staff?empresa_id=${currentBusinessId}`),
-        fetch(`${API_URL}/api/appointments?empresa_id=${currentBusinessId}`)
-      ]);
-
-      const staffData = await resStaff.json();
-      const citasData = await resCitas.json();
-      
-      setEmpleados(Array.isArray(staffData) ? staffData : []);
-      setCitasReales(Array.isArray(citasData) ? citasData : []);
-      
-    } catch (error) {
-      console.error("❌ Error de sincronización:", error);
+      console.error("❌ Error al guardar empleado:", error);
     }
   };
+  useEffect(() => {
+    const sincronizarDashboard = async () => {
+      if (!currentBusinessId) return;
 
-  sincronizarDashboard();
-}, [currentBusinessId, selectedType]);
+      try {
+        console.log("🔄 Sincronizando datos de Nnook...");
+
+        const [resStaff, resCitas] = await Promise.all([
+          fetch(`${API_URL}/api/staff?empresa_id=${currentBusinessId}`),
+          fetch(`${API_URL}/api/appointments?empresa_id=${currentBusinessId}`)
+        ]);
+
+        const staffData = await resStaff.json();
+        const citasData = await resCitas.json();
+
+        setEmpleados(Array.isArray(staffData) ? staffData : []);
+        setCitasReales(Array.isArray(citasData) ? citasData : []);
+
+      } catch (error) {
+        console.error("❌ Error de sincronización:", error);
+      }
+    };
+
+    sincronizarDashboard();
+  }, [currentBusinessId, selectedType]);
 
   const actions = {
     startRegister: () => {
@@ -182,8 +182,30 @@ function App() {
       setShowOnboarding(false);
       setEmpleados([]);
       setCitasReales([]);
-
       console.log("👋 Sesión cerrada y estados reseteados");
+    },
+    deleteBusiness: async (id) => {
+      const confirmacion = window.confirm(
+        "⚠️ ¿ESTÁS SEGURO? Esta acción es irreversible. Se eliminarán permanentemente tus empleados, servicios y todas tus citas agendadas."
+      );
+
+      if (confirmacion) {
+        try {
+          const response = await fetch(`${API_URL}/api/business/${id}`, {
+            method: 'DELETE',
+          });
+
+          if (response.ok) {
+            console.log("🗑️ Empresa eliminada de la base de datos");
+            actions.logout();
+            alert("Tu cuenta y todos sus datos han sido eliminados correctamente.");
+          } else {
+            alert("No se pudo eliminar la cuenta. Por favor, contacta con soporte.");
+          }
+        } catch (error) {
+          console.error("❌ Error al eliminar la empresa:", error);
+        }
+      }
     }
   };
 

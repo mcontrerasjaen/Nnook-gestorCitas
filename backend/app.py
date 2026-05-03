@@ -99,8 +99,7 @@ def get_appointments():
         return jsonify([]) 
     
 @app.route('/api/services', methods=['GET', 'POST'])
-def manage_services():
-    # Obtenemos el ID de la empresa
+def manage_services():    
     empresa_id = request.args.get('empresa_id') or (request.json.get('empresa_id') if request.is_json else None)
     
     conn = get_db_connection()
@@ -117,13 +116,22 @@ def manage_services():
         cur.close()
         conn.close()
         return jsonify(nuevo)
-
-    # Si es GET
+   
     cur.execute("SELECT * FROM servicios WHERE empresa_id = %s ORDER BY id DESC", (empresa_id,))
     servicios = cur.fetchall()
     cur.close()
     conn.close()
     return jsonify(servicios)
+
+@app.route('/api/business/<int:id>', methods=['DELETE'])
+def delete_business(id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM empresas WHERE id = %s", (id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({"status": "success"})
 
 if __name__ == '__main__':
     print("🚀 Nnook Backend conectado a PostgreSQL (Puerto 5433)")
