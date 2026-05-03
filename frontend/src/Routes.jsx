@@ -26,10 +26,10 @@ export default function AppRoutes({
 }) {
   return (
     <Routes>
-      <Route path="/" element={       
+      <Route path="/" element={
         selectedType ? (
           <Navigate to="/dashboard/agenda" replace />
-        ) :         
+        ) :
           showLogin ? (
             <Login onLogin={actions.handleLogin} onBack={actions.backToLanding} />
           ) : showLanding ? (
@@ -42,7 +42,7 @@ export default function AppRoutes({
             <BusinessRegister onBack={actions.backToLanding} onComplete={actions.completeRegister} />
           ) : showOnboarding ? (
             <BusinessOnboardingForm onComplete={actions.completeOnboarding} />
-          ) : (           
+          ) : (
             <SegmentSelector onSelect={actions.handleSelection} />
           )
       } />
@@ -54,6 +54,7 @@ export default function AppRoutes({
             businessName={businessInfo.name || businessInfo.salonName}
             theme={UI_CONFIG[selectedType] || UI_CONFIG.barber}
             onOpenModal={actions.openModal}
+            onLogout={actions.logout}
           >
             <Routes>
               <Route path="agenda" element={

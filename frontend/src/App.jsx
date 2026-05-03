@@ -39,13 +39,13 @@ function App() {
 
       const data = await response.json();
 
-      if (data.status === "success") {       
+      if (data.status === "success") {
         setBusinessInfo({
           name: data.business.nombre_salon,
           email: data.business.email
         });
-        setCurrentBusinessId(data.business.id);        
-        setSelectedType(data.business.sector);        
+        setCurrentBusinessId(data.business.id);
+        setSelectedType(data.business.sector);
         setShowLanding(false);
         setShowLogin(false);
         setShowRegister(false);
@@ -60,7 +60,7 @@ function App() {
     }
   };
 
-  const handleSelection = async (selection) => {    
+  const handleSelection = async (selection) => {
     const subSectorId = selection.specialty.id;
     const categoryId = selection.category.id;
 
@@ -72,23 +72,23 @@ function App() {
           businessName: businessInfo.name,
           email: businessInfo.email,
           type: subSectorId,
-          mainCategory: categoryId 
+          mainCategory: categoryId
         })
       });
 
       if (response.ok) {
         const result = await response.json();
-        setCurrentBusinessId(result.id);       
+        setCurrentBusinessId(result.id);
         setBusinessInfo(prev => ({
           ...prev,
           sector: subSectorId,
           category: categoryId
         }));
-        
+
         setSelectedType(subSectorId);
       }
     } catch (error) {
-      console.error("Error al configurar el home:", error);      
+      console.error("Error al configurar el home:", error);
       setSelectedType(subSectorId);
     }
   };
@@ -161,7 +161,20 @@ function App() {
     openModal: () => setIsModalOpen(true),
     cargarCitas,
     handleAddStaff,
-    handleDeleteStaff: (id) => setEmpleados(empleados.filter(e => e.id !== id))
+    handleDeleteStaff: (id) => setEmpleados(empleados.filter(e => e.id !== id)),
+    logout: () => {      
+      setCurrentBusinessId(null);
+      setBusinessInfo({ name: '', owner: '', email: '', sector: '' });     
+      setSelectedType(null);
+      setShowLanding(true);
+      setShowLogin(false);
+      setShowRegister(false);
+      setShowOnboarding(false);      
+      setEmpleados([]);
+      setCitasReales([]);
+
+      console.log("👋 Sesión cerrada y estados reseteados");
+    }
   };
 
   const UI_CONFIG = {
