@@ -1,133 +1,140 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Clock } from 'lucide-react';
 
-const EMPLEADOS = [
-  { id: 1, nombre: 'Alex (Barber)', citas: [{ id: 101, cliente: 'Marc R.', hora: '09:00', duracion: 60, servicio: 'Corte + Barba' }] },
-  { id: 2, nombre: 'Dani (Color)', citas: [{ id: 102, cliente: 'Sara P.', hora: '10:30', duracion: 90, servicio: 'Mechas Balayage' }] },
-  { id: 3, nombre: 'Carla', citas: [] },
+const HORAS = [
+  '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+  '12:00', '12:30', '13:00', '13:30', '14:00', '14:30',
+  '15:00', '15:30', '16:00', '16:30', '17:00', '17:30',
+  '18:00', '18:30', '19:00', '19:30', '20:00'
 ];
 
-const HORAS = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'];
+export default function Agenda({ empleados, citasReales, theme, onSuccess, salonType }) {
+  // 1. Mantenemos el activeTab solo para la vista de móvil
+  const [activeTab, setActiveTab] = useState(null);
 
-export default function Agenda({ citasReales, salonType, onSuccess }) {
-  const [activeTab, setActiveTab] = useState(EMPLEADOS[0].id);
+  // 2. Variable de seguridad: Si no hay pestaña activa, usamos el primer empleado disponible
+  // Esto evita que la agenda "desaparezca" si activeTab es null
+  const currentTabId = activeTab || (empleados.length > 0 ? empleados[0].id : null);
+
+  // 3. Este efecto solo sirve para "limpiar" la selección si el empleado ya no existe
+  useEffect(() => {
+    if (empleados.length > 0 && activeTab === null) {
+      setActiveTab(empleados[0].id);
+    }
+  }, [empleados.length]);
 
   const handleEliminar = async (id) => {
     try {
-      const response = await fetch(`https://humble-spoon-q75qxq4xj94gc647r-3001.app.github.dev/api/appointments/${id}`, {
+      const response = await fetch(`https://humble-spoon-q75qxq4xj94gc647r-5000.app.github.dev/api/appointments/${id}`, {
         method: 'DELETE'
       });
-      if (response.ok) {
-        onSuccess();
-      }
+      if (response.ok) onSuccess();
     } catch (error) {
       console.error("Error al borrar:", error);
     }
   };
 
-  return (
-    <div className="flex flex-col h-full bg-aura-dark/30 rounded-3xl border border-white/5 overflow-hidden">
-
-      <div className="flex md:hidden border-b border-white/5 p-2 gap-2 overflow-x-auto no-scrollbar">
-        {EMPLEADOS.map(emp => (
-          <button
-            key={emp.id}
-            onClick={() => setActiveTab(emp.id)}
-            className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all ${activeTab === emp.id ? 'bg-aura-gold text-aura-black' : 'bg-white/5 text-gray-400'
-              }`}
-          >
-            {emp.nombre}
-          </button>
-        ))}
+  if (empleados.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh] text-gray-500 border-2 border-dashed border-white/5 rounded-[3rem] m-8">
+        <p className="font-serif text-2xl text-white mb-2">Tu agenda está lista</p>
+        <p className="text-sm uppercase tracking-widest opacity-40">Añade especialistas en Equipo para empezar</p>
       </div>
+    );
+  }
 
-      <div className="flex flex-1 overflow-auto bg-[#0F0F0F]">
-        <div className="w-24 border-r border-[#D4AF37]/10 flex-shrink-0 bg-[#0F0F0F] sticky left-0 z-30">
+ return (
+    <div className="flex flex-col h-full bg-[#0F0F0F] rounded-[2.5rem] border border-white/5 overflow-hidden">
+      
+      {/* Selector para móvil (Solo se ve en pantallas pequeñas) */}
+      {empleados.length > 1 && (
+        <div className="flex md:hidden border-b border-white/5 p-4 gap-3 overflow-x-auto bg-black/40">
+          {empleados.map(emp => (
+            <button
+              key={emp.id}
+              onClick={() => setActiveTab(emp.id)}
+              className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                (activeTab === emp.id || (!activeTab && empleados[0].id === emp.id)) 
+                ? 'bg-[#D4AF37] text-black shadow-[0_0_15px_rgba(212,175,55,0.3)]' 
+                : 'bg-white/5 text-gray-500'
+              }`}
+            >
+              {emp.nombre}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div className="flex flex-1 overflow-auto">
+        {/* Columna fija de Horas */}
+        <div className="w-24 border-r border-white/5 flex-shrink-0 bg-[#0A0A0A] sticky left-0 z-30">
           {HORAS.map((hora) => (
-            <div key={hora} className="h-24 border-b border-white/5 flex flex-col items-center justify-center relative group">
-              <div className="flex items-baseline">
-                <span className="text-xl font-black text-white tracking-tighter shadow-sm">
-                  {hora.split(':')}
-                </span>
-                <span className="text-[#D4AF37] font-black mx-0.5 text-lg">:</span>
-                <span className="text-sm font-bold text-gray-500">
-                  {hora.split(':')}
-                </span>
-              </div>
-              <span className="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.2em] mt-1">
+            <div key={hora} className="h-24 border-b border-white/[0.02] flex flex-col items-center justify-center text-white font-bold bg-[#0A0A0A]">
+              <span className="text-lg tracking-tighter">{hora}</span>
+              <span className="text-[8px] text-[#D4AF37] font-black tracking-widest uppercase opacity-60">
                 {parseInt(hora) < 12 ? 'AM' : 'PM'}
               </span>
-
-              <div className="absolute right-0 w-[2px] h-3/4 bg-[#D4AF37] opacity-0 group-hover:opacity-100 transition-opacity shadow-[0_0_10px_#D4AF37]" />
             </div>
           ))}
         </div>
 
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-3 divide-x divide-white/5">
-          {EMPLEADOS.map((emp) => (
+        {/* CONTENEDOR DE COLUMNAS: Forzamos visualización */}
+        <div 
+          className="flex-1 grid divide-x divide-white/5" 
+          style={{ 
+            gridTemplateColumns: `repeat(${empleados.length}, minmax(280px, 1fr))`,
+            minWidth: '100%' 
+          }}
+        >
+          {empleados.map((emp, index) => (
             <div
               key={emp.id}
-              className={`relative min-w-[250px] bg-[#0F0F0F] ${activeTab === emp.id ? 'block' : 'hidden md:block'}`}
+              // LA CLAVE: En escritorio (md) siempre es 'block'. En móvil, si no hay activeTab, mostramos el primero.
+              className={`relative bg-[#0F0F0F] min-h-full ${
+                (activeTab === emp.id || (!activeTab && index === 0)) ? 'block' : 'hidden md:block'
+              }`}
             >
-              <div className="hidden md:block sticky top-0 bg-[#0F0F0F]/80 backdrop-blur-md p-4 text-center border-b border-white/5 z-20">
-                <span className="text-[11px] font-black text-[#D4AF37] uppercase tracking-[0.3em]">
+              {/* Cabecera del Empleado */}
+              <div className="sticky top-0 bg-[#0F0F0F]/95 backdrop-blur-md p-5 text-center border-b border-white/5 z-20">
+                <div 
+                  className="w-2 h-2 rounded-full mx-auto mb-2 shadow-[0_0_10px]" 
+                  style={{ backgroundColor: emp.color, boxShadow: `0 0 10px ${emp.color}` }} 
+                />
+                <span className="text-[11px] font-black text-white uppercase tracking-[0.3em] block truncate">
                   {emp.nombre}
                 </span>
+                <span className="text-[8px] text-gray-500 uppercase font-bold tracking-widest">{emp.especialidad}</span>
               </div>
 
-              <div className="relative h-full">
+              {/* Rejilla de Horas */}
+              <div className="relative">
                 {HORAS.map((h) => (
-                  <div key={h} className="h-24 border-b border-white/[0.02] select-none" />
+                  <div key={h} className="h-24 border-b border-white/[0.02] hover:bg-white/[0.01] transition-colors" />
                 ))}
 
-                {citasReales
-                  .filter(cita => cita.cliente !== null)
-                  .filter(cita => cita.salonType === salonType)
-                  .filter(cita => Number(cita.empleadoId) === emp.id)
+                {/* Pintar citas */}
+                {citasReales && citasReales
+                  .filter(cita => Number(cita.empleado_id) === emp.id)
                   .map((cita) => (
                     <motion.div
                       key={cita.id}
-                      initial={{ opacity: 0, scale: 0.95 }}
+                      initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      whileHover={{ scale: 1.02 }}
-                      onClick={() => {
-                        if (confirm(`¿Eliminar la reserva de ${cita.cliente}?`)) handleEliminar(cita.id);
-                      }}
-                      className="absolute left-3 right-3 p-3 rounded-2xl bg-[#1A1A1A] border border-[#D4AF37]/20 shadow-2xl border-l-[6px] border-l-[#D4AF37] z-10 cursor-pointer transition-all duration-300 group hover:border-red-600 hover:border-l-red-600 hover:bg-red-950/40 flex flex-col"
+                      className="absolute left-3 right-3 p-4 rounded-2xl bg-[#1A1A1A] border-l-[6px] shadow-2xl z-10 group"
                       style={{
-                        top: `${(parseInt(cita.hora) - 9) * 96 + 10}px`,
-                        height: `${(parseInt(cita.duracion) / 60) * 96 - 20}px`
+                        borderColor: emp.color,
+                        top: `${HORAS.indexOf(cita.hora_inicio.substring(0, 5)) * 96 + 8}px`,
+                        height: '80px'
                       }}
-                    >                      
-                      <div className="flex flex-col h-full group-hover:opacity-0 transition-opacity duration-200">
-                        <div className="flex justify-between items-center mb-1 shrink-0">
-                          <p className="text-[10px] font-black text-[#D4AF37] uppercase tracking-widest">{cita.hora}</p>
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#D4AF37] shadow-[0_0_8px_#D4AF37]" />
-                        </div>
-                        <p className="text-xs font-black text-white truncate mb-2 shrink-0">{cita.cliente}</p>
-                        <div className="flex-1 flex flex-col gap-1 overflow-hidden min-h-0">
-                          {cita.bloques && cita.bloques.length > 0 ? (
-                            cita.bloques.map((bloque, idx) => (
-                              <div
-                                key={idx}
-                                className="flex items-center justify-between px-2 py-1 rounded-md border-l-2 text-[7px] font-black uppercase"
-                                style={{ backgroundColor: `${bloque.color}15`, borderColor: bloque.color, color: bloque.color, flex: bloque.duracion }}
-                              >
-                                <span className="truncate">{bloque.tarea || bloque.name}</span>
-                                <span className="opacity-60">{bloque.duracion}'</span>
-                              </div>
-                            ))
-                          ) : (
-                            <p className="text-[9px] text-gray-500 font-bold truncate">{cita.servicio}</p>
-                          )}
-                        </div>
+                    >
+                      <div className="flex justify-between items-start mb-1">
+                         <span className="text-[9px] font-black text-gray-500 uppercase">{cita.hora_inicio.substring(0, 5)}</span>
+                         <button onClick={() => handleEliminar(cita.id)} className="opacity-0 group-hover:opacity-100 text-red-500 transition-opacity">
+                            <Trash2 size={12} />
+                         </button>
                       </div>
-                      
-                      <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        <Trash2 size={20} className="text-red-500 mb-1 drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]" />
-                        <span className="text-[10px] font-black text-red-500 uppercase tracking-[0.3em]">Eliminar</span>
-                      </div>
+                      <p className="text-xs font-black text-white uppercase truncate">{cita.cliente_nombre}</p>
                     </motion.div>
                   ))
                 }

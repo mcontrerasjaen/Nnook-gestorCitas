@@ -93,41 +93,51 @@ function App() {
     }
   };
 
-  const handleAddStaff = async (newStaff) => {
+ const handleAddStaff = async (newStaff) => {
     try {
-      const response = await fetch(`${API_URL}/api/staff`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...newStaff,
-          empresa_id: currentBusinessId || 1
-        })
-      });
-      const savedStaff = await response.json();
-      setEmpleados([...empleados, savedStaff]);
+        const response = await fetch(`${API_URL}/api/staff`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                ...newStaff,
+                empresa_id: currentBusinessId
+            })
+        });
+
+        if (response.ok) {
+            const savedStaff = await response.json()        
+            setEmpleados(prev => [...prev, savedStaff]); 
+            console.log("✅ Empleado guardado en la base de datos:", savedStaff.nombre);
+        }
     } catch (error) {
-      console.error("Error al guardar empleado:", error);
+        console.error("❌ Error al guardar empleado:", error);
+    }
+};
+  useEffect(() => {
+  const sincronizarDashboard = async () => {    
+    if (!currentBusinessId) return;
+
+    try {
+      console.log("🔄 Sincronizando datos de Nnook...");
+            
+      const [resStaff, resCitas] = await Promise.all([
+        fetch(`${API_URL}/api/staff?empresa_id=${currentBusinessId}`),
+        fetch(`${API_URL}/api/appointments?empresa_id=${currentBusinessId}`)
+      ]);
+
+      const staffData = await resStaff.json();
+      const citasData = await resCitas.json();
+      
+      setEmpleados(Array.isArray(staffData) ? staffData : []);
+      setCitasReales(Array.isArray(citasData) ? citasData : []);
+      
+    } catch (error) {
+      console.error("❌ Error de sincronización:", error);
     }
   };
 
-  useEffect(() => {
-    if (selectedType) cargarCitas();
-  }, [selectedType]);
-
-  useEffect(() => {
-    const cargarEquipo = async () => {
-      if (selectedType && currentBusinessId) {
-        try {
-          const res = await fetch(`${API_URL}/api/staff?empresa_id=${currentBusinessId}`);
-          const data = await res.json();
-          setEmpleados(data);
-        } catch (error) {
-          console.error("Error al cargar el equipo:", error);
-        }
-      }
-    };
-    cargarEquipo();
-  }, [selectedType, currentBusinessId]);
+  sincronizarDashboard();
+}, [currentBusinessId, selectedType]);
 
   const actions = {
     startRegister: () => {
@@ -162,14 +172,14 @@ function App() {
     cargarCitas,
     handleAddStaff,
     handleDeleteStaff: (id) => setEmpleados(empleados.filter(e => e.id !== id)),
-    logout: () => {      
+    logout: () => {
       setCurrentBusinessId(null);
-      setBusinessInfo({ name: '', owner: '', email: '', sector: '' });     
+      setBusinessInfo({ name: '', owner: '', email: '', sector: '' });
       setSelectedType(null);
       setShowLanding(true);
       setShowLogin(false);
       setShowRegister(false);
-      setShowOnboarding(false);      
+      setShowOnboarding(false);
       setEmpleados([]);
       setCitasReales([]);
 
@@ -209,6 +219,7 @@ function App() {
           citasReales={citasReales}
           actions={actions}
           UI_CONFIG={UI_CONFIG}
+          currentBusinessId={currentBusinessId}
         />
 
         {isModalOpen && (

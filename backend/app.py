@@ -11,7 +11,6 @@ DATABASE_URL = "postgresql://postgres:26035618@localhost:5433/nnook_db"
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
 
-# --- 1. REGISTRAR EMPRESA ---
 @app.route('/api/home', methods=['POST']) 
 def register_home(): 
     data = request.json
@@ -98,6 +97,33 @@ def get_appointments():
         return jsonify(citas)
     except:
         return jsonify([]) 
+    
+@app.route('/api/services', methods=['GET', 'POST'])
+def manage_services():
+    # Obtenemos el ID de la empresa
+    empresa_id = request.args.get('empresa_id') or (request.json.get('empresa_id') if request.is_json else None)
+    
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    if request.method == 'POST':
+        data = request.json
+        cur.execute("""
+            INSERT INTO servicios (empresa_id, nombre, duracion, precio, color)
+            VALUES (%s, %s, %s, %s, %s) RETURNING *;
+        """, (empresa_id, data.get('nombre'), data.get('duracion'), data.get('precio'), data.get('color')))
+        nuevo = cur.fetchone()
+        conn.commit()
+        cur.close()
+        conn.close()
+        return jsonify(nuevo)
+
+    # Si es GET
+    cur.execute("SELECT * FROM servicios WHERE empresa_id = %s ORDER BY id DESC", (empresa_id,))
+    servicios = cur.fetchall()
+    cur.close()
+    conn.close()
+    return jsonify(servicios)
 
 if __name__ == '__main__':
     print("🚀 Nnook Backend conectado a PostgreSQL (Puerto 5433)")

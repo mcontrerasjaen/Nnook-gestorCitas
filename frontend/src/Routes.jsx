@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
+// Componentes (asegúrate de que todos estén importados)
 import Hero from './components/landing/Hero';
 import Features from './components/landing/Features';
 import Footer from './components/Footer';
@@ -10,6 +11,7 @@ import SegmentSelector from './components/SegmentSelector';
 import DashboardLayout from './components/DashboardLayout';
 import Agenda from './components/Agenda';
 import StaffManagement from './components/StaffManagement';
+import ServiceManagement from './components/ServiceManagement';
 import Login from './components/Login';
 
 export default function AppRoutes({
@@ -22,31 +24,31 @@ export default function AppRoutes({
   empleados,
   citasReales,
   actions,
-  UI_CONFIG
+  UI_CONFIG,
+  currentBusinessId
 }) {
   return (
-    <Routes>
+    <Routes>     
       <Route path="/" element={
         selectedType ? (
           <Navigate to="/dashboard/agenda" replace />
-        ) :
-          showLogin ? (
-            <Login onLogin={actions.handleLogin} onBack={actions.backToLanding} />
-          ) : showLanding ? (
-            <div className="flex flex-col">
-              <Hero onStart={actions.startRegister} onLoginClick={actions.startLogin} />
-              <Features />
-              <Footer />
-            </div>
-          ) : showRegister ? (
-            <BusinessRegister onBack={actions.backToLanding} onComplete={actions.completeRegister} />
-          ) : showOnboarding ? (
-            <BusinessOnboardingForm onComplete={actions.completeOnboarding} />
-          ) : (
-            <SegmentSelector onSelect={actions.handleSelection} />
-          )
+        ) : showLogin ? (
+          <Login onLogin={actions.handleLogin} onBack={actions.backToLanding} />
+        ) : showLanding ? (
+          <div className="flex flex-col">
+            <Hero onStart={actions.startRegister} onLoginClick={actions.startLogin} />
+            <Features />
+            <Footer />
+          </div>
+        ) : showRegister ? (
+          <BusinessRegister onBack={actions.backToLanding} onComplete={actions.completeRegister} />
+        ) : showOnboarding ? (
+          <BusinessOnboardingForm onComplete={actions.completeOnboarding} />
+        ) : (
+          <SegmentSelector onSelect={actions.handleSelection} />
+        )
       } />
-
+     
       <Route path="/dashboard/*" element={
         selectedType ? (
           <DashboardLayout
@@ -56,7 +58,16 @@ export default function AppRoutes({
             onOpenModal={actions.openModal}
             onLogout={actions.logout}
           >
-            <Routes>
+            <Routes>              
+              <Route index element={
+                <Agenda
+                  empleados={empleados}
+                  citasReales={citasReales}
+                  theme={UI_CONFIG[selectedType] || UI_CONFIG.barber}
+                  onSuccess={actions.cargarCitas}
+                />
+              } />
+
               <Route path="agenda" element={
                 <Agenda
                   empleados={empleados}
@@ -65,6 +76,7 @@ export default function AppRoutes({
                   onSuccess={actions.cargarCitas}
                 />
               } />
+
               <Route path="staff" element={
                 <StaffManagement
                   empleados={empleados}
@@ -73,10 +85,17 @@ export default function AppRoutes({
                   theme={UI_CONFIG[selectedType] || UI_CONFIG.barber}
                 />
               } />
-              <Route path="*" element={<Navigate to="agenda" />} />
+
+              <Route path="services" element={
+                <ServiceManagement
+                  salonType={selectedType}
+                  currentBusinessId={currentBusinessId}
+                />
+              } />            
+            
             </Routes>
           </DashboardLayout>
-        ) : <Navigate to="/" />
+        ) : <Navigate to="/" replace />
       } />
     </Routes>
   );
