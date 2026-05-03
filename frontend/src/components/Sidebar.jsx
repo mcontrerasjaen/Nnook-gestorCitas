@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom'; // Importante para las URLs
+import { NavLink } from 'react-router-dom'; 
 import { Calendar, Users, Settings, Scissors, LayoutDashboard, LogOut } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -16,8 +16,7 @@ export default function Sidebar({ theme, onLogout }) {
   const accentColor = theme?.color || '#D4AF37';
 
   return (
-    <>
-      {/* MOBILE NAV */}
+    <>      
       <nav className="fixed bottom-0 left-0 right-0 h-16 bg-[#1A1A1A] border-t border-white/10 flex justify-around items-center z-50 md:hidden px-4">
         {menuItems.slice(0, 4).map((item) => (
           <NavLink 
@@ -33,8 +32,7 @@ export default function Sidebar({ theme, onLogout }) {
           </NavLink>
         ))}
       </nav>
-
-      {/* DESKTOP SIDEBAR */}
+      
       <aside className="hidden md:flex w-64 h-screen bg-[#0F0F0F] border-r border-white/5 flex-col p-6 sticky top-0">
         <div className="flex items-center gap-3 mb-12">
           <div 
@@ -55,8 +53,7 @@ export default function Sidebar({ theme, onLogout }) {
                 w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all group
                 ${isActive ? 'bg-white/5 text-white' : 'text-gray-500 hover:text-white hover:bg-white/[0.02]'}
               `}
-            >
-              {/* Usamos una función para detectar si está activo y pintar el icono */}
+            >              
               {({ isActive }) => (
                 <>
                   <span 
