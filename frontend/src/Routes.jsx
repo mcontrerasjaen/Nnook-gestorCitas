@@ -76,6 +76,7 @@ export default function AppRoutes({
                   citasReales={citasReales}
                   theme={UI_CONFIG[selectedType] || UI_CONFIG.barber}
                   onSuccess={actions.cargarCitas}
+                  actions={actions}
                 />
               } />
 

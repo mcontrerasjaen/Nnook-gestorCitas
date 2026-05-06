@@ -4,7 +4,10 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
+CORS(app, resources={r"/api/*": {"origins": "*"}}, 
+     expose_headers=["Content-Type", "Authorization"],
+     allow_headers=["Content-Type", "Authorization"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 
 DATABASE_URL = "postgresql://postgres:26035618@localhost:5433/nnook_db"
 
@@ -99,8 +102,7 @@ def manage_appointments():
             
             nueva_cita = cur.fetchone()
             conn.commit()
-            
-            # --- FORMATEO ANTES DE ENVIAR ---
+                      
             if nueva_cita:
                 nueva_cita['fecha'] = nueva_cita['fecha'].isoformat() if hasattr(nueva_cita['fecha'], 'isoformat') else str(nueva_cita['fecha'])
                 nueva_cita['hora_inicio'] = nueva_cita['hora_inicio'].strftime('%H:%M') if hasattr(nueva_cita['hora_inicio'], 'strftime') else str(nueva_cita['hora_inicio'])
@@ -113,13 +115,21 @@ def manage_appointments():
             cur.close()
             conn.close()
 
-    # --- LÓGICA GET ---
     empresa_id = request.args.get('empresa_id')
+    fecha_seleccionada = request.args.get('fecha')
+
     try:
-        cur.execute("SELECT * FROM citas WHERE empresa_id = %s ORDER BY hora_inicio ASC", (empresa_id,))
+        if fecha_seleccionada:            
+            cur.execute("""
+                SELECT * FROM citas 
+                WHERE empresa_id = %s AND fecha = %s 
+                ORDER BY hora_inicio ASC
+            """, (empresa_id, fecha_seleccionada))
+        else:
+            cur.execute("SELECT * FROM citas WHERE empresa_id = %s ORDER BY hora_inicio ASC", (empresa_id,))
+
         citas = cur.fetchall()
-        
-        # Formateamos todas las citas de la lista
+                
         for cita in citas:
             cita['fecha'] = str(cita['fecha'])
             cita['hora_inicio'] = cita['hora_inicio'].strftime('%H:%M') if hasattr(cita['hora_inicio'], 'strftime') else str(cita['hora_inicio'])

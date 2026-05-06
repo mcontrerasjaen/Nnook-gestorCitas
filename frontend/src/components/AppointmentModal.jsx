@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Clock, User, Scissors, UserRound, ChevronDown } from 'lucide-react';
 import { format } from 'date-fns';
 
-export default function AppointmentModal({ onClose, onSuccess, empleados, currentBusinessId, fechaSeleccionada }) {
+export default function AppointmentModal({ onClose, onSuccess, empleados, citasReales, currentBusinessId, fechaSeleccionada }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,9 +16,9 @@ export default function AppointmentModal({ onClose, onSuccess, empleados, curren
       servicio_nombre: formData.get('servicio'),
       empleado_id: parseInt(formData.get('empleadoId')),
       empresa_id: parseInt(currentBusinessId),
-      fecha: typeof fechaSeleccionada === 'string' 
+     fecha: typeof fechaSeleccionada === 'string' 
          ? fechaSeleccionada 
-         : format(fechaSeleccionada, 'yyyy-MM-dd')
+         : fechaSeleccionada.toISOString().split('T')[0]
     };
 
     console.log("Enviando cita...", appointmentData);

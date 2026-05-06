@@ -19,20 +19,24 @@ function App() {
   const [businessInfo, setBusinessInfo] = useState({ name: '', owner: '', email: '', sector: '' });
   const [currentBusinessId, setCurrentBusinessId] = useState(null);
   const [fechaAgenda, setFechaAgenda] = useState(new Date().toISOString().split('T')[0]);
+  const [preselectedHour, setPreselectedHour] = useState("");
+  const [preselectedStaff, setPreselectedStaff] = useState("");
 
-  const cargarCitas = async () => {
-
+  const cargarCitas = async (nuevaFecha) => {
     if (!currentBusinessId) return;
 
+    if (nuevaFecha) {
+      setFechaAgenda(nuevaFecha);
+    }
+
+    const fechaABuscar = nuevaFecha || fechaAgenda;
+
     try {
-      const res = await fetch(`${API_URL}/api/appointments?empresa_id=${currentBusinessId}`);
+      const res = await fetch(`${API_URL}/api/appointments?empresa_id=${currentBusinessId}&fecha=${fechaABuscar}`);
       const data = await res.json();
-
       setCitasReales([...data]);
-
-      console.log("📅 Citas sincronizadas para la empresa:", currentBusinessId);
     } catch (error) {
-      console.error("Error al obtener citas:", error);
+      console.error("Error:", error);
     }
   };
 
@@ -120,7 +124,7 @@ function App() {
       console.error("❌ Error al guardar empleado:", error);
     }
   };
-  
+
   useEffect(() => {
     const cargarTodo = async () => {
       if (!currentBusinessId) return;
@@ -192,6 +196,16 @@ function App() {
       setCitasReales([]);
       console.log("👋 Sesión cerrada y estados reseteados");
     },
+    openModal: () => {
+      setPreselectedHour("");
+      setPreselectedStaff("");
+      setIsModalOpen(true);
+    },
+    openModalConDatos: (hora, empleadoId) => {
+      setPreselectedHour(hora);
+      setPreselectedStaff(empleadoId);
+      setIsModalOpen(true);
+    },
     deleteBusiness: async (id) => {
       const confirmacion = window.confirm(
         "⚠️ ¿ESTÁS SEGURO? Esta acción es irreversible. Se eliminarán permanentemente tus empleados, servicios y todas tus citas agendadas."
@@ -257,8 +271,11 @@ function App() {
             onClose={() => setIsModalOpen(false)}
             onSuccess={cargarCitas}
             empleados={empleados}
+            citasReales={citasReales}
             currentBusinessId={currentBusinessId}
             fechaSeleccionada={fechaAgenda}
+            preselectedHour={preselectedHour}
+            preselectedStaff={preselectedStaff}
           />
         )}
       </div>
