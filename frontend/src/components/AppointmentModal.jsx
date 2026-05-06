@@ -2,7 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Clock, User, Scissors, UserRound, ChevronDown } from 'lucide-react';
 
-export default function AppointmentModal({ onClose, onSuccess, salonType, empleados, currentBusinessId }) {
+export default function AppointmentModal({ onClose, onSuccess, empleados, currentBusinessId, fechaSeleccionada }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -13,15 +13,14 @@ export default function AppointmentModal({ onClose, onSuccess, salonType, emplea
       hora_inicio: formData.get('hora'),
       duracion: parseInt(formData.get('duracion') || 30),
       servicio_nombre: formData.get('servicio'),
-      empleado_id: parseInt(formData.get('empleadoId')), // Convertimos a número para Postgres
-      empresa_id: parseInt(currentBusinessId),           // Convertimos a número para Postgres
-      fecha: new Date().toISOString().split('T')[0]
+      empleado_id: parseInt(formData.get('empleadoId')), 
+      empresa_id: parseInt(currentBusinessId),           
+      fecha: fechaSeleccionada 
     };
 
     console.log("Enviando cita...", appointmentData);
 
-    try {
-      // CAMBIO CLAVE: Puerto 5000 (Backend) en lugar de 3001
+    try {      
       const response = await fetch('https://humble-spoon-q75qxq4xj94gc647r-5000.app.github.dev/api/appointments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -30,8 +29,7 @@ export default function AppointmentModal({ onClose, onSuccess, salonType, emplea
 
       if (response.ok) {
         if (onSuccess) await onSuccess();
-        onClose();
-        // Quitamos el alert para que la experiencia sea más fluida y profesional
+        onClose();        
         console.log("¡Cita reservada con éxito!");
       } else {
         const errorServer = await response.json();
@@ -111,8 +109,7 @@ export default function AppointmentModal({ onClose, onSuccess, salonType, emplea
                 className="w-full bg-[#0F0F0F] border border-white/5 rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-[#D4AF37]/50 transition-all text-sm appearance-none cursor-pointer text-white"
               >
                 <option value="" disabled>Selecciona un especialista...</option>
-
-                {/* MAPEO DINÁMICO: Solo aparecerán los que el dueño haya creado */}
+                
                 {empleados.map(emp => (
                   <option key={emp.id} value={emp.id}>
                     {emp.nombre} ({emp.especialidad})

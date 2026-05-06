@@ -18,6 +18,7 @@ function App() {
   const [empleados, setEmpleados] = useState([]);
   const [businessInfo, setBusinessInfo] = useState({ name: '', owner: '', email: '', sector: '' });
   const [currentBusinessId, setCurrentBusinessId] = useState(null);
+  const [fechaAgenda, setFechaAgenda] = useState(new Date().toISOString().split('T')[0]);
 
   const cargarCitas = async () => {
 
@@ -119,6 +120,7 @@ function App() {
       console.error("❌ Error al guardar empleado:", error);
     }
   };
+  
   useEffect(() => {
     const cargarTodo = async () => {
       if (!currentBusinessId) return;
@@ -141,10 +143,11 @@ function App() {
     };
 
     cargarTodo();
-    
+
   }, [currentBusinessId])
 
   const actions = {
+    actualizarFechaAgenda: (nuevaFecha) => setFechaAgenda(nuevaFecha),
     startRegister: () => {
       setSelectedType(null);
       setShowLanding(false);
@@ -253,9 +256,9 @@ function App() {
           <AppointmentModal
             onClose={() => setIsModalOpen(false)}
             onSuccess={cargarCitas}
-            salonType={selectedType}
             empleados={empleados}
             currentBusinessId={currentBusinessId}
+            fechaSeleccionada={fechaAgenda}
           />
         )}
       </div>

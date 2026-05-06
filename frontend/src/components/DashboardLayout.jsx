@@ -10,6 +10,7 @@ export default function DashboardLayout({
   onOpenModal, 
   onLogout 
 }) {
+  
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-[#0F0F0F] text-white">
           
