@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Clock, Calendar as CalendarIcon, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
-//import "react-day-picker/style.css";
+import "react-day-picker/style.css";
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import 'react-day-picker/dist/style.css';
@@ -66,9 +66,7 @@ export default function Agenda({ empleados, citasReales, theme, onSuccess }) {
   }
 
   return (
-    <div className="flex flex-col h-full gap-6">
-
-      {/* CABECERA DINÁMICA CON CALENDARIO */}
+    <div className="flex flex-col h-full gap-6">      
       <div className="flex flex-col md:flex-row items-center justify-between bg-[#111111] p-6 rounded-[2.5rem] border border-white/5 gap-4">
         <div className="relative group">
           <div className="flex items-center gap-4 bg-black px-6 py-4 rounded-2xl border border-[#D4AF37]/20 group-hover:border-[#D4AF37] transition-all shadow-2xl">
@@ -100,48 +98,96 @@ export default function Agenda({ empleados, citasReales, theme, onSuccess }) {
           </button>
         </div>
       </div>
-
-      {/* AGENDA PRINCIPAL */}
-      <div className="flex flex-col h-full bg-[#0F0F0F] rounded-[2.5rem] border border-white/5 overflow-hidden">       
-
-        <div className="flex flex-1 overflow-auto">         
-
-          <div className="flex-1 grid divide-x divide-white/5" style={{ gridTemplateColumns: `repeat(${empleados.length}, minmax(280px, 1fr))`, minWidth: '100%' }}>
-            {empleados.map((emp, index) => (
-              <div key={emp.id} className={`relative bg-[#0F0F0F] min-h-full ${(currentTabId === emp.id) ? 'block' : 'hidden md:block'}`}>                
-
-                <div className="relative">
-                  {HORAS.map((h) => (
-                    <div key={h} className="h-24 border-b border-white/[0.02] hover:bg-white/[0.01] transition-colors relative">
-                      {citasReales && citasReales
-                        .filter(cita => {
-                          const esMismoEmp = String(cita.empleado_id) === String(emp.id);
-                          const esMismaHora = cita.hora_inicio.substring(0, 5) === h;
-                          const esMismaFecha = cita.fecha === formatearFechaSQL(fechaSeleccionada);
-
-                          return esMismoEmp && esMismaHora && esMismaFecha;
-                        })
-                        .map((cita) => (
-                          <motion.div
-                            key={cita.id}
-                            className="absolute inset-x-2 p-4 rounded-2xl bg-[#1A1A1A] border-l-[6px] shadow-2xl z-10 group"
-                            style={{ borderColor: emp.color, top: '8px', height: '80px' }}
-                          >
-                            <div className="flex justify-between items-start mb-1">
-                              <span className="text-[9px] font-black text-gray-500 uppercase">{cita.hora_inicio.substring(0, 5)}</span>
-                              <button onClick={() => handleEliminar(cita.id)} className="opacity-0 group-hover:opacity-100 text-red-500 transition-opacity">
-                                <Trash2 size={12} />
-                              </button>
-                            </div>
-                            <p className="text-xs font-black text-white uppercase truncate">{cita.cliente_nombre || cita.cliente}</p>
-                          </motion.div>
-                        ))
-                      }
-                    </div>
-                  ))}
-                </div>
+     
+      <div className="flex flex-col flex-1 bg-[#0F0F0F] rounded-[2.5rem] border border-white/5 overflow-hidden">       
+        <div className="flex p-4 gap-2 overflow-x-auto no-scrollbar border-b border-white/5 bg-black/20">
+          {empleados.map(emp => (
+            <button
+              key={emp.id}
+              onClick={() => setActiveTab(emp.id)}
+              className={`px-6 py-3 rounded-xl border transition-all whitespace-nowrap ${currentTabId === emp.id
+                ? 'bg-[#D4AF37] text-black border-[#D4AF37]'
+                : 'bg-black text-gray-500 border-white/5 hover:border-white/20'
+                }`}
+            >
+              <span className="text-[10px] font-black uppercase tracking-widest">{emp.nombre}</span>
+            </button>
+          ))}
+        </div>
+        
+        <div className="flex flex-1 overflow-hidden h-[600px]">         
+          <div className="flex flex-1 overflow-hidden h-[600px]">            
+            <div className="w-20 border-r border-white/5 bg-black/40 flex-shrink-0">
+              <div className="overflow-y-auto h-full no-scrollbar">
+                {HORAS.map(h => (
+                  <div key={h} className="h-24 flex items-center justify-center border-b border-white/[0.02]">
+                    <span className="text-[10px] font-black text-gray-600">{h}</span>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
+       
+            <div className="flex-1 overflow-x-auto bg-[#0A0A0A] no-scrollbar">
+              <div
+                className="flex divide-x divide-white/5"
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: `repeat(${empleados.length}, 350px)`,
+                  minWidth: 'max-content'
+                }}
+              >
+                {empleados.map(emp => (
+                  <div key={emp.id} className="relative min-h-full border-r border-white/5">
+
+                    <div className="sticky top-0 z-20 bg-[#0F0F0F] p-3 border-b border-white/5 text-center">
+                      <span className="text-[9px] font-black uppercase tracking-[0.2em]" style={{ color: emp.color || '#D4AF37' }}>
+                        {emp.nombre}
+                      </span>
+                    </div>
+
+                    {HORAS.map((h) => {
+                      const citasDeEstaHora = citasReales?.filter(cita =>
+                        String(cita.empleado_id) === String(emp.id) &&
+                        cita.hora_inicio.substring(0, 5) === h &&
+                        cita.fecha === isoFecha
+                      ) || [];
+
+                      return (
+                        <div key={h} className="h-24 border-b border-white/[0.02] hover:bg-white/[0.01] relative group">
+                          {citasDeEstaHora.length === 0 && (
+                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                              <span className="text-[7px] text-white/5 uppercase font-black">Disponible</span>
+                            </div>
+                          )}
+
+                          {citasDeEstaHora.map((cita) => (
+                            <motion.div
+                              key={cita.id}
+                              initial={{ opacity: 0, scale: 0.95 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              className="absolute inset-x-2 p-3 rounded-xl bg-[#161616] border-l-4 shadow-2xl z-10 group/item"
+                              style={{
+                                borderColor: emp.color || '#D4AF37',
+                                top: '8px',
+                                height: '80px'
+                              }}
+                            >
+                              <div className="flex justify-between items-start">
+                                <p className="text-[10px] font-black text-white uppercase truncate">{cita.cliente_nombre}</p>
+                                <button onClick={() => handleEliminar(cita.id)} className="text-red-500/30 hover:text-red-500 transition-colors">
+                                  <Trash2 size={12} />
+                                </button>
+                              </div>
+                              <p className="text-[8px] text-gray-500 mt-1 uppercase truncate">{cita.servicio_nombre}</p>
+                            </motion.div>
+                          ))}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>

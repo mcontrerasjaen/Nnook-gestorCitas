@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Clock, User, Scissors, UserRound, ChevronDown } from 'lucide-react';
+import { format } from 'date-fns';
 
 export default function AppointmentModal({ onClose, onSuccess, empleados, currentBusinessId, fechaSeleccionada }) {
 
@@ -13,14 +14,27 @@ export default function AppointmentModal({ onClose, onSuccess, empleados, curren
       hora_inicio: formData.get('hora'),
       duracion: parseInt(formData.get('duracion') || 30),
       servicio_nombre: formData.get('servicio'),
-      empleado_id: parseInt(formData.get('empleadoId')), 
-      empresa_id: parseInt(currentBusinessId),           
-      fecha: fechaSeleccionada 
+      empleado_id: parseInt(formData.get('empleadoId')),
+      empresa_id: parseInt(currentBusinessId),
+      fecha: typeof fechaSeleccionada === 'string' 
+         ? fechaSeleccionada 
+         : format(fechaSeleccionada, 'yyyy-MM-dd')
     };
 
     console.log("Enviando cita...", appointmentData);
 
-    try {      
+    const conflicto = citasReales.find(c =>
+      String(c.empleado_id) === String(appointmentData.empleado_id) &&
+      c.hora_inicio.substring(0, 5) === appointmentData.hora_inicio &&
+      c.fecha === appointmentData.fecha
+    );
+
+    if (conflicto) {
+      alert(`El profesional ya tiene una cita reservada a las ${appointmentData.hora_inicio}`);
+      return;
+    }
+
+    try {
       const response = await fetch('https://humble-spoon-q75qxq4xj94gc647r-5000.app.github.dev/api/appointments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -29,7 +43,7 @@ export default function AppointmentModal({ onClose, onSuccess, empleados, curren
 
       if (response.ok) {
         if (onSuccess) await onSuccess();
-        onClose();        
+        onClose();
         console.log("¡Cita reservada con éxito!");
       } else {
         const errorServer = await response.json();
@@ -109,7 +123,7 @@ export default function AppointmentModal({ onClose, onSuccess, empleados, curren
                 className="w-full bg-[#0F0F0F] border border-white/5 rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-[#D4AF37]/50 transition-all text-sm appearance-none cursor-pointer text-white"
               >
                 <option value="" disabled>Selecciona un especialista...</option>
-                
+
                 {empleados.map(emp => (
                   <option key={emp.id} value={emp.id}>
                     {emp.nombre} ({emp.especialidad})
