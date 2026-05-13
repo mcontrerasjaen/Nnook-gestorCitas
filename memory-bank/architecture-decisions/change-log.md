@@ -1,0 +1,2 @@
+- Añadido el documento de requisitos inicial para el MVP del SaaS de reservas (B2B2C).
+- Creado el plan de implementación técnica inicial (001-mvp-setup.md) con el diseño de API, Base de Datos y vistas de Frontend.   
